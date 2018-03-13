@@ -1,0 +1,163 @@
+//
+//  ABCDeliveryToDepotParcel.m
+//  your-dpd
+//
+//  Created by Richard Simkins on 18/05/2015.
+//  Copyright (c) 2015 dpd. All rights reserved.
+//
+
+#import "ABCDeliveryToDepotParcel.h"
+
+#import "ABCDataStatus.h"
+#import "AppDelegate.h"
+
+@interface ABCDeliveryToDepotParcel()
+	@property (nonatomic) ABCDataParcel* dataParcel;
+@end
+
+@implementation ABCDeliveryToDepotParcel
+	- (CGFloat) SizePaddingBottom {
+		return 14.0f;
+	}
+
+	- (CGFloat) SizePaddingLeft {
+		return 70.0f;
+	}
+
+	- (CGFloat) SizePaddingRight {
+		return 10.0f;
+	}
+
+	- (CGFloat) SizePaddingTop {
+		return 12.0f;
+	}
+
+	- (CGFloat) SizeSeparator {
+		return 5.0f;
+	}
+
+	- (instancetype) initWithDataParcel:(ABCDataParcel*)dataParcel {
+		self = [super init];
+
+		if (!self) return nil;
+
+		[self setDataParcel:dataParcel];
+		[self setSizeView:CGSizeMake(
+			[[UIScreen mainScreen] bounds].size.width - ([AppDelegate SizePaddingFromSides] * 2.0f),
+			152.0f)];
+		[self initialise];
+
+		return self;
+	}
+
+	- (void) initialise {
+		[self setBackgroundColor:[UIColor whiteColor]];
+
+		CGSize sizeThatFits = CGSizeMake(
+			[self sizeView].width - [self SizePaddingLeft] - [self SizePaddingRight],
+			[self sizeView].height - ([AppDelegate SizePaddingFromSidesThin] * 2.0f));
+
+		NSAttributedString* dispatcherNameText = [[NSAttributedString alloc]
+			initWithString:[[self dataParcel] dispatcherName]
+			attributes:@{
+				NSFontAttributeName:[AppDelegate FontRegularWithSize:12.0f],
+				NSForegroundColorAttributeName:[AppDelegate ColourAppBlack],
+			}];
+
+		UILabel* dispatcherName = [[UILabel alloc] init];
+		[self addSubview:dispatcherName];
+		[dispatcherName setAttributedText:dispatcherNameText];
+
+		CGSize dispatcherNameSize = [dispatcherName sizeThatFits:sizeThatFits];
+
+		[dispatcherName setFrame:CGRectMake(
+			[self SizePaddingLeft],
+			[self SizePaddingTop],
+			dispatcherNameSize.width,
+			dispatcherNameSize.height)];
+
+		NSAttributedString* referenceNumberText = [[NSAttributedString alloc]
+			initWithString:[[self dataParcel] referenceNumber]
+			attributes:@{
+				NSFontAttributeName:[AppDelegate FontRegularWithSize:12.0f],
+				NSForegroundColorAttributeName:[AppDelegate ColourAppBlack],
+			}];
+
+		UILabel* referenceNumber = [[UILabel alloc] init];
+		[self addSubview:referenceNumber];
+		[referenceNumber setAttributedText:referenceNumberText];
+
+		CGSize referenceNumberSize = [referenceNumber sizeThatFits:sizeThatFits];
+
+		[referenceNumber setFrame:CGRectMake(
+			[self SizePaddingLeft] + [self SizeSeparator] + dispatcherNameSize.width,
+			[self SizePaddingTop] + dispatcherNameSize.height - referenceNumberSize.height,
+			referenceNumberSize.width,
+			referenceNumberSize.height)];
+
+		ABCDataStatus* dataStatus;
+		dataStatus = [[ABCDataStatus alloc] initWithDataParcel:[self dataParcel]];
+
+		UILabel* description = [[UILabel alloc] init];
+		[self addSubview:description];
+		[description setAttributedText:[dataStatus attributedString]];
+		[description setNumberOfLines:0];
+
+		CGSize descriptionSize = [description sizeThatFits:sizeThatFits];
+
+		[description setFrame:CGRectMake(
+			[self SizePaddingLeft],
+			[self SizePaddingTop] + dispatcherNameSize.height,
+			descriptionSize.width,
+			descriptionSize.height)];
+
+		NSAttributedString* addressAttributedString = [[NSAttributedString alloc]
+			initWithString:[[self dataParcel] depotAddress]
+			attributes:@{
+				NSFontAttributeName:[AppDelegate FontRegularWithSize:12.0f],
+				NSForegroundColorAttributeName:[AppDelegate ColourAppBlack],
+			}];
+
+		UILabel* address = [[UILabel alloc] init];
+		[self addSubview:address];
+		[address setAttributedText:addressAttributedString];
+		[address setNumberOfLines:0];
+
+		CGSize addressSize = [address sizeThatFits:sizeThatFits];
+
+		[address setFrame:CGRectMake(
+			[self SizePaddingLeft],
+			[self sizeView].height - [self SizePaddingBottom] - addressSize.height,
+			addressSize.width,
+			addressSize.height)];
+
+		NSAttributedString* addressHeadingAttributedString = [[NSAttributedString alloc]
+			initWithString:@"Depot address"
+			attributes:@{
+				NSFontAttributeName:[AppDelegate FontRegularWithSize:12.0f],
+				NSForegroundColorAttributeName:[AppDelegate ColourAppBlack],
+			}];
+
+		UILabel* addressHeading = [[UILabel alloc] init];
+		[self addSubview:addressHeading];
+		[addressHeading setAttributedText:addressHeadingAttributedString];
+		[addressHeading setNumberOfLines:1];
+
+		CGSize addressHeadingSize = [addressHeading sizeThatFits:sizeThatFits];
+
+		[addressHeading setFrame:CGRectMake(
+			[self SizePaddingLeft],
+			[self sizeView].height - [self SizePaddingBottom] - addressSize.height - addressHeadingSize.height,
+			addressHeadingSize.width,
+			addressHeadingSize.height)];
+
+		UIImageView* icon = [[UIImageView alloc] initWithFrame:CGRectMake(
+			([self SizePaddingLeft] - [AppDelegate SizeIcon40]) / 2.0f,
+			[self SizePaddingTop],
+			[AppDelegate SizeIcon40],
+			[AppDelegate SizeIcon40])];
+		[self addSubview:icon];
+		[icon setContentMode:UIViewContentModeScaleAspectFill];
+		[icon setImage:[UIImage imageNamed:@"parcel-dispatcher-placeholder.png"]];
+	}
+@end
