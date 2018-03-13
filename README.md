@@ -1,2 +1,2 @@
-# DynamicPackageDeliveryApp
-Dynamic Package Delivery App
+# dpd-app-iOS
+Your dpd App for iOS
